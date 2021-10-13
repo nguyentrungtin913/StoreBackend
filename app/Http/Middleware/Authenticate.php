@@ -5,7 +5,8 @@ namespace App\Http\Middleware;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Closure;
 use App\Models\Token;
-use Illuminate\Auth\AuthenticationException
+use Illuminate\Auth\AuthenticationException;
+
 class Authenticate extends Middleware
 {
     /**
