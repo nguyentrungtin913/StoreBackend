@@ -7,7 +7,7 @@ use Closure;
 use App\Models\Token;
 use Illuminate\Auth\AuthenticationException;
 
-class Authenticate extends Middleware
+class Authenticate
 {
     /**
      * Get the path the user should be redirected to when they are not authenticated.
