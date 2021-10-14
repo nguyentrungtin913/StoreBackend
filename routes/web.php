@@ -40,7 +40,9 @@ Route::put('/product','App\Http\Controllers\ProductController@update')->middlewa
 Route::delete('/product','App\Http\Controllers\ProductController@delete')->middleware('auth');
 
 //order
-Route::post('/order','App\Http\Controllers\OrderController@save')->middleware('auth');
+Route::post('/order','App\Http\Controllers\OrderController@sell')->middleware('auth');
+Route::post('/order-buy','App\Http\Controllers\OrderController@buy');
+
 Route::get('/orders','App\Http\Controllers\OrderController@index')->middleware('auth');
 Route::get('/export-orders','App\Http\Controllers\OrderController@exportCsv')->middleware('auth');
-Route::get('/order-detail','App\Http\Controllers\OrderController@orderDetail')->middleware('auth');
+Route::get('/order-detail','App\Http\Controllers\OrderController@orderDetail');

@@ -33,7 +33,7 @@ class OrderDetailController extends Controller
 
         $query = $this->productTypeModel->includes($query, $with);
 
-        $data = DataHelper::getList($query, $this->productTypeTransformer, $perPage, 'ListAllProductType');
+        $data = DataHelper::getList($query, $this->productTypeTransformer, $perPage, 'ListOrderDetail');
         
         return ResponseHelper::success($response, $data);
     }

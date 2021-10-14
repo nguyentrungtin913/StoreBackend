@@ -30,7 +30,7 @@ class ProductController extends Controller
         $orderBy = $this->productModel->orderBy($params['sortBy'] ?? null, $params['sortType'] ?? null);
 
         $query = $this->productModel->filter($this->productModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
-        $query->where([['pro_amount',">",0]]);
+        //$query->where([['pro_amount',">",0]]);
         $query = $this->productModel->includes($query, $with);
 
         $data = DataHelper::getList($query, $this->productTransformer, $perPage, 'ListAllProduct');

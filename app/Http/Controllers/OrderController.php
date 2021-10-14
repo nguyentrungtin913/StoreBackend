@@ -29,7 +29,7 @@ class OrderController extends Controller
         $this->orderDetailTransformer = $orderDetailTransformer;
     }
 
-    public function save(Request $request, Response $response)
+    public function sell(Request $request, Response $response)
     {
         $params = $request->all();
         $name = $params['name'] ?? null;
@@ -47,6 +47,7 @@ class OrderController extends Controller
         $order = $this->orderModel->create([
             'order_total'   => $total,
             'order_name'    => $name,
+            'order_type'    => 'Xuất',
             'order_date'    => $date
         ]);
         if($order){
@@ -64,6 +65,50 @@ class OrderController extends Controller
                         $product->update([
                             'pro_amount'        => ($product->pro_amount - $value),
                             'pro_amount_sell'   => ($product->pro_amount_sell + $value),
+                        ]); 
+                    }
+                }
+            }
+        }
+        
+        return $products;
+    }
+
+    public function buy(Request $request, Response $response)
+    {
+        $params = $request->all();
+        $name = $params['name'] ?? null;
+        $products = $params['order'];
+        $keys = array();
+        $values = array();
+        $total = 0;
+        $date = date("Y-m-d");
+        foreach ($products as $value) {
+            array_push($keys, $value['id']);
+            array_push($values, $value['amountSell']);
+            $total += ($value['amountSell'] * $value['priceExport']);
+        }
+
+        $order = $this->orderModel->create([
+            'order_total'   => $total,
+            'order_name'    => $name,
+            'order_type'    => 'Nhập',
+            'order_date'    => $date
+        ]);
+        if($order){
+            $details = array_combine($keys, $values); 
+            foreach($details as $key => $value){
+                $detail = $this->orderDetailModel->create([
+                    'order_id'      => $order->order_id,
+                    'pro_id'        => $key,
+                    'detail_amount' => $value
+                ]);
+                if($detail){
+                    $product = $this->productModel->where('pro_id',$key)->first();
+                    if($product)
+                    {
+                        $product->update([
+                            'pro_amount'        => ($product->pro_amount + $value),
                         ]); 
                     }
                 }

@@ -14,6 +14,7 @@ class Order extends BaseModel
         'order_id'         => 'orderId',
         'order_name'       => 'orderName',
         'order_total'      => 'orderTotal',
+        'order_type'       => 'orderType',
         'order_date'       => 'orderDate'
     ];
 
@@ -21,6 +22,7 @@ class Order extends BaseModel
         'order_id',
         'order_name',
         'order_total',
+        'order_type',
         'order_date',
         'order_deleted'
     ];
