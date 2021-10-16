@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Transformers\OrderDetailTransformer;
 use App\Models\Product;
+use App\Transformers\ProductTransformer;
 use App\Validators\OrderValidator;
 use App\Transformers\OrderTransformer;
 use App\Helpers\DataHelper;
@@ -19,7 +20,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
-    public function __construct(Order $orderModel, OrderTransformer $orderTransformer, OrderValidator $orderValidator, OrderDetail $orderDetailModel, Product $productModel, OrderDetailTransformer $orderDetailTransformer)
+    public function __construct(Order $orderModel, OrderTransformer $orderTransformer, OrderValidator $orderValidator, OrderDetail $orderDetailModel, Product $productModel, OrderDetailTransformer $orderDetailTransformer, ProductTransformer $productTransformer)
     {
         $this->orderModel = $orderModel;
         $this->orderTransformer = $orderTransformer;
@@ -27,6 +28,7 @@ class OrderController extends Controller
         $this->orderDetailModel = $orderDetailModel;
         $this->productModel = $productModel;
         $this->orderDetailTransformer = $orderDetailTransformer;
+        $this->productTransformer = $productTransformer;
     }
 
     public function sell(Request $request, Response $response)
@@ -183,4 +185,69 @@ class OrderController extends Controller
         
         return ResponseHelper::success($response, $data);
     }
+    public function ReportProduct(Request $request, Response $response)
+    {
+        $params = $request->all();
+        $dateStart = $params['dateStart'] ?? null;
+        $dateEnd = $params['dateEnd'] ?? null;
+        $type = $params['type'] ?? null;
+        if($type === 1){
+            $sortType = 'asc';
+        }else{
+            $sortType = 'desc';
+        }
+        $sortBy = 'pro_amount_sell';
+        $listOrderDetail=[];
+        $arr=[];
+        $test=[];
+        $pro=[];
+
+        if(!$dateStart || !$dateEnd)
+        {
+            $orders = $this->orderModel->get();
+        }else{
+            $orders = $this->orderModel->where([
+                ['order_date','>=', $dateStart],
+                ['order_date','<=', $dateEnd]
+            ])->get();
+        }
+        
+
+        foreach($orders as $value){
+            $orderDetails = [];
+            $orderDetails = $this->orderDetailModel->where('order_id', $value->order_id)->get()->toArray();
+            $listOrderDetail = array_merge($orderDetails, $listOrderDetail);
+        }
+        $dem=0;
+        for ($i=0; $i < count($listOrderDetail) ; $i++) { 
+            if(!in_array($listOrderDetail[$i]['pro_id'],$arr)){
+                array_push($arr, $listOrderDetail[$i]['pro_id']);
+                array_push($pro, $listOrderDetail[$i]);
+            }else{
+                for($j=0 ; $j<count($pro); $j++){ 
+                   if($pro[$j]['pro_id']===$listOrderDetail[$i]['pro_id']) {
+                       $pro[$j]['detail_amount'] += $listOrderDetail[$i]['detail_amount'];
+                   }
+                }
+                $dem++;
+            }
+        }
+
+        
+        $query = $this->productModel->whereIn('pro_id',$arr)->with('productType');
+        $query = $query->orderBy($sortBy, $sortType);
+        $listProduct = $query->get();
+        
+        $listProduct = $this->productTransformer->transformCollection($listProduct);
+
+        for($i=0; $i < count($listProduct); $i++){
+            for($j=0; $j < count($pro); $j++){
+                if($listProduct[$i]['id'] === $pro[$j]['pro_id']){
+                   $listProduct[$i]['amountSell'] = $pro[$j]['detail_amount'];
+                }
+            }
+        }
+        return ResponseHelper::success($response, compact('listProduct')); 
+    }
+        
 }
