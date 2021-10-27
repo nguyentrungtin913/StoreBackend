@@ -88,9 +88,6 @@ class ProductController extends Controller
             \Image::make($request->get('image'))->save(public_path($folder).$newImage);
             $path =$folder.$newImage;
         }
-       
-
-
 
         
         // if (!is_dir("storage/app/public/products")) {

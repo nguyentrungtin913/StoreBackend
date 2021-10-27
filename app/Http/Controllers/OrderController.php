@@ -240,6 +240,8 @@ class OrderController extends Controller
         $dateStart = $params['dateStart'] ?? null;
         $dateEnd = $params['dateEnd'] ?? null;
         $type = $params['type'] ?? null;
+        $status = $params['status'] ?? 1;
+
         if($type === 1){
             $sortType = 'asc';
         }else{
@@ -253,11 +255,12 @@ class OrderController extends Controller
 
         if(!$dateStart || !$dateEnd)
         {
-            $orders = $this->orderModel->get();
+            $orders = $this->orderModel->where('order_type','Xuất')->get();
         }else{
             $orders = $this->orderModel->where([
                 ['order_date','>=', $dateStart],
-                ['order_date','<=', $dateEnd]
+                ['order_date','<=', $dateEnd],
+                ['order_type','=', 'Xuất']
             ])->get();
         }
         
@@ -282,20 +285,31 @@ class OrderController extends Controller
             }
         }
 
-        
-        $query = $this->productModel->whereIn('pro_id',$arr)->with('productType');
-        $listProduct = $query->get();
-        
-        $listProduct = $this->productTransformer->transformCollection($listProduct);
 
-        for($i=0; $i < count($listProduct); $i++){
-            for($j=0; $j < count($pro); $j++){
-                if($listProduct[$i]['id'] === $pro[$j]['pro_id']){
-                   $listProduct[$i]['amountSell'] = $pro[$j]['detail_amount'];
+        if($status == 1){
+          $query = $this->productModel->whereIn('pro_id',$arr)->with('productType');
+            $listProduct = $query->get();
+            
+            $listProduct = $this->productTransformer->transformCollection($listProduct);
+
+            for($i=0; $i < count($listProduct); $i++){
+                for($j=0; $j < count($pro); $j++){
+                    if($listProduct[$i]['id'] === $pro[$j]['pro_id']){
+                       $listProduct[$i]['amountSell'] = $pro[$j]['detail_amount'];
+                    }
                 }
-            }
-        }
+            }  
+        }else{
+            $query = $this->productModel->whereNotIn('pro_id',$arr)->with('productType');
+            $listProduct = $query->get();
+            
+            $listProduct = $this->productTransformer->transformCollection($listProduct);
 
+            for($i=0; $i < count($listProduct); $i++){
+                $listProduct[$i]['amountSell'] = 0;
+            } 
+        }
+        
         $listProduct = DataHelper::sortData($listProduct, $sortBy, $sortType);
         
         return ResponseHelper::success($response, compact('listProduct')); 
