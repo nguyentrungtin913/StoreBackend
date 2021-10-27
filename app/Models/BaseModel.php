@@ -29,11 +29,11 @@ class BaseModel extends Model
         return static::query()->create($attributes);
     }
 
-    function orderBy($sortBy = 'createdAt', $sortType = 'desc')
+    function orderBy($sortBy, $sortType = 'desc')
     {
         $sortType = strtolower($sortType);
         $sortBy = $this->getFieldByAlias($sortBy) ?? static::CREATED_AT;
-        $sortType = in_array($sortType, ['desc', 'asc']) ? $sortType : 'desc';
+        $sortType = in_array($sortType, ['desc', 'asc']) ? $sortType : 'asc';
         return compact('sortBy', 'sortType');
     }
     public function includes($query, $relations = [])

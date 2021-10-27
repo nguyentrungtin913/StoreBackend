@@ -44,7 +44,8 @@ Route::post('/order','App\Http\Controllers\OrderController@sell')->middleware('a
 Route::post('/order-buy','App\Http\Controllers\OrderController@buy');
 
 Route::get('/orders','App\Http\Controllers\OrderController@index');
-Route::get('/export-orders','App\Http\Controllers\OrderController@exportCsv')->middleware('auth');
+Route::delete('/order','App\Http\Controllers\OrderController@delete');
+Route::post('/export-orders','App\Http\Controllers\OrderController@exportCsv');
 Route::get('/order-detail','App\Http\Controllers\OrderController@orderDetail');
 Route::post('/report','App\Http\Controllers\OrderController@ReportProduct');
 
@@ -106,7 +107,7 @@ Route::get('backup-db', function () {
     $output = $structure . $data;
     fwrite($file_handle, $output);
     fclose($file_handle);
-    
+
     if (file_exists($file_name)) {
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');

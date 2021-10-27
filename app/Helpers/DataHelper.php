@@ -30,4 +30,29 @@ class DataHelper
         }
         return $data;
     }
+    static public function sortData($arr, $by, $type)
+    {
+       for ($i=0; $i < count($arr) ; $i++) { 
+           for ($j=0; $j < count($arr) ; $j++) { 
+               if($type === 'desc') //giam
+               {
+                if($arr[$i][$by] < $arr[$j][$by])
+                {
+                    $temp = $arr[$i];
+                    $arr[$i] = $arr[$j];
+                    $arr[$j] = $temp;
+                }
+               }else{
+                //tang
+                if($arr[$i][$by] > $arr[$j][$by])
+                {
+                    $temp = $arr[$i];
+                    $arr[$i] = $arr[$j];
+                    $arr[$j] = $temp;
+                }
+               }
+           }
+       }
+       return $arr;
+    }
 }

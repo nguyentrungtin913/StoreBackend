@@ -30,14 +30,22 @@ class ProductValidator extends BaseValidator
     {
         if(
             !$this->checkNumeric('priceImport', 'Vui lòng thêm giá nhập là một số !') ||
-            !$this->checkNumeric('priceExport', 'Vui lòng thêm giá xuất là một số !') ||
-            !$this->checkNumeric('amount', 'Vui lòng thêm số lượng sản phẩm là một số !')
+            !$this->checkNumeric('priceExport', 'Vui lòng thêm giá xuất là một số !')
         ){
             return false;
         }else{
             return true;
         }
     }
+
+    public function checkNumericAmount()
+   {
+        if (!is_numeric($this->request->get('amount')) || $this->request->get('amount') < 0) {
+            $this->setError(400, 'invalid_param', "Vui lòng thêm số lượng sản phẩm là một số !");
+            return false;
+        }
+       return true;
+   }
 
     public function checkProductTypeExist()
     {
@@ -64,7 +72,7 @@ class ProductValidator extends BaseValidator
     }
     public function save()
     {
-        if (!$this->requireData() || !$this->checkNumericData() || !$this->checkProductTypeExist()) {
+        if (!$this->requireData() || !$this->checkNumericData() || !$this->checkProductTypeExist() || !$this->checkNumericAmount()) {
             return false;
         } else {
             return true;

@@ -11,5 +11,35 @@ class OrderValidator extends BaseValidator
     {
         $this->order= $order;
     }
+    public function checkOrderExist()
+    {
+        $id = $this->request->get('orderId') ?? null;
+        $order = $this->order->where("order_id" , $id)->first();
+        if($order){
+            return true;
+        }else{
+            $this->setError(400, 'error', "Order not exist", 'Đơn hàng không tìm thấy!');
+            return false;
+        }
+
+    }
+
+    public function detail()
+    {
+        if (!$this->checkOrderExist()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public function delete()
+    {
+        if (!$this->checkOrderExist()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 ?>

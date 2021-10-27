@@ -17,6 +17,7 @@ use App\Helpers\ResponseHelper;
 use App\Helpers\Random;
 use App\Exports\OrderExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -36,6 +37,7 @@ class OrderController extends Controller
         $params = $request->all();
         $name = $params['name'] ?? null;
         $products = $params['order'];
+        
         $keys = array();
         $values = array();
         $total = 0;
@@ -136,12 +138,54 @@ class OrderController extends Controller
         return ResponseHelper::success($response, $data);
     }
 
+    public function delete(Request $request, Response $response)
+    {
+        $param = $request->all();
+        $orderId = $param['orderId'] ?? null;
+
+        if (!$this->orderValidator->setRequest($request)->delete()) {
+            $errors = $this->orderValidator->getErrors();
+            return ResponseHelper::errors($response, $errors);
+        }
+
+        if($this->orderModel->where('order_id', $orderId)->update(['order_deleted' => 1])) {
+            $order = $this->orderModel->where('order_id', $orderId)->first();
+            $order = $this->orderTransformer->transformItem($order);
+            return ResponseHelper::success($response, compact('order'), 'Success Delete order success');
+        }
+
+        return ResponseHelper::requestFailed($response);
+    }
+
+
     public function exportCsv(Request $request)
     {
        //return Excel::download(new OrderExport, 'Orders.xlsx');
+        $params = $request->all();
+        $dateStart=$params['dateStart'] ?? null;
+        $dateEnd=$params['dateEnd'] ?? null;
+        $type=$params['type'] ?? 0;
+        
         $fileName = 'orders.csv';
-        $orders = $this->orderModel::all();
+        if($dateStart && $dateEnd ){
+            $query = $this->orderModel::query()->where([['order_date','>=',$dateStart],['order_date','<=',$dateEnd]]);   
+        }
+        else{
+            $query = $this->orderModel::query();    
+        }
 
+        switch($type){
+            case 0:
+                $orders=$query->get();
+                break;
+            case 1:
+                $orders=$query->where('order_type', 'Nhập')->get();
+                break;
+            case 2: 
+                $orders=$query->where('order_type', 'Xuất')->get();
+                break;
+        }
+        
         $headers = array(
             "Content-type"        => "text/csv",
             "Content-Disposition" => "attachment; filename=$fileName",
@@ -151,19 +195,21 @@ class OrderController extends Controller
             "Expires"             => "0"
         );
 
-        $columns = array('Id', 'Name', 'Total', 'Date');
-
+        $columns = array('STT', 'Tên người mua', 'Tổng tiền', 'Ngày mua', 'Loại');
+        
         $callback = function() use($orders, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
-
+            $index = 0;
             foreach ($orders as $order) {
-                $row['Id']      = $order->order_id;
-                $row['Name']    = $order->order_name;
-                $row['Total']   = $order->order_total;
-                $row['Date']    = $order->order_date;
+                $index++;
+                $row['STT']             = $index;
+                $row['Tên người mua']   = $order->order_name ?? '(Trống)';
+                $row['Tổng tiền']       = $order->order_total;
+                $row['Ngày mua']        = $order->order_date;
+                $row['Loại']            = $order->order_type;
 
-                 fputcsv($file, array($row['Id'], $row['Name'], $row['Total'], $row['Date']));
+                fputcsv($file, array($row['STT'], $row['Tên người mua'], $row['Tổng tiền'], $row['Ngày mua'], $row['Loại']));
             }
 
             fclose($file);
@@ -174,7 +220,10 @@ class OrderController extends Controller
     public function orderDetail(Request $request, Response $response)
     {
         $params = $request->all();
-
+        if (!$this->orderValidator->setRequest($request)->delete()) {
+            $errors = $this->orderValidator->getErrors();
+            return ResponseHelper::errors($response, $errors);
+        }
         $id = $params['orderId'] ?? 0;
         $perPage = $params['perPage'] ?? 0;
         $with = $params['with'] ?? [];
@@ -196,7 +245,7 @@ class OrderController extends Controller
         }else{
             $sortType = 'desc';
         }
-        $sortBy = 'pro_amount_sell';
+        $sortBy = 'amountSell';
         $listOrderDetail=[];
         $arr=[];
         $test=[];
@@ -235,7 +284,6 @@ class OrderController extends Controller
 
         
         $query = $this->productModel->whereIn('pro_id',$arr)->with('productType');
-        $query = $query->orderBy($sortBy, $sortType);
         $listProduct = $query->get();
         
         $listProduct = $this->productTransformer->transformCollection($listProduct);
@@ -247,6 +295,9 @@ class OrderController extends Controller
                 }
             }
         }
+
+        $listProduct = DataHelper::sortData($listProduct, $sortBy, $sortType);
+        
         return ResponseHelper::success($response, compact('listProduct')); 
     }
         
