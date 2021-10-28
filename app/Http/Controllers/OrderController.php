@@ -128,10 +128,7 @@ class OrderController extends Controller
 
         $perPage = $params['perPage'] ?? 0;
         
-        $orderBy = $this->orderModel->orderBy($params['sortBy'] ?? null, $params['sortType'] ?? null);
-
-        $query = $this->orderModel->filter($this->orderModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
-
+        $query = $this->orderModel->filter($this->orderModel::query(), $params)->orderBy('order_id', 'desc' ?? null);
 
         $data = DataHelper::getList($query, $this->orderTransformer, $perPage, 'ListAllOrder');
         
@@ -227,7 +224,10 @@ class OrderController extends Controller
         $id = $params['orderId'] ?? 0;
         $perPage = $params['perPage'] ?? 0;
         $with = $params['with'] ?? [];
+        
+
         $query = $this->orderDetailModel->where('order_id', $id);
+
         $query = $this->orderDetailModel->includes($query, $with);
 
         $data = DataHelper::getList($query, $this->orderDetailTransformer, $perPage, 'ListOrderDetail');

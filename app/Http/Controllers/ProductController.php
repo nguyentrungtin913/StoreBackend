@@ -6,6 +6,7 @@ use Facade\FlareClient\Http\Response as HttpResponse;
 use Illuminate\Http\Request;
 use Response;
 use App\Models\Product;
+use App\Models\ImageProduct;
 use App\Validators\ProductValidator;
 use App\Transformers\ProductTransformer;
 use App\Helpers\DataHelper;
@@ -13,11 +14,12 @@ use App\Helpers\ResponseHelper;
 use App\Helpers\Random;
 class ProductController extends Controller
 {
-    public function __construct(Product $productModel, ProductTransformer $productTransformer, ProductValidator $productValidator)
+    public function __construct(Product $productModel, ProductTransformer $productTransformer, ProductValidator $productValidator, ImageProduct $imageProduct)
     {
         $this->productModel = $productModel;
         $this->productTransformer = $productTransformer;
         $this->productValidator = $productValidator;
+        $this->imageProduct = $imageProduct;
     }
 
     public function index(Request $request, Response $response)
@@ -53,6 +55,33 @@ class ProductController extends Controller
         return ResponseHelper::success($response, compact('product'));
     }
 
+    public function getImage($image)
+    {
+        $id = $image ?? 0;
+        $ipro =  $this->imageProduct->where('ipro_id', $id)->first();
+        $clientOriginalExtension = 'jpg';
+        if($ipro->ipro_image){
+            $clientOriginalExtension = explode('/', explode(':', substr($ipro->ipro_image, 0, strpos($ipro->ipro_image, ';')))[1])[1];
+        }
+
+        $output_file  = 'storage/app/public/products/tmp.'.$clientOriginalExtension;
+        $ifp = fopen( $output_file, 'wb' ); 
+        $data = explode( ',', $ipro->ipro_image );
+
+        fwrite( $ifp, base64_decode( $data[ 1 ] ) );
+        fclose( $ifp ); 
+
+        $path = $output_file;
+
+        if (!\File::exists($path)) {
+            abort(404);
+        }
+        $file = \File::get($path);
+        $type =  \File::mimeType($path);
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+        return $response;
+    }
     public function save(Request $request, Response $response)
     {
         $params=$request->all();
@@ -71,37 +100,36 @@ class ProductController extends Controller
 
         
         $image =request('image');
-        $path = "";
-        $clientOriginalExtension = 'jpg';
-        if($image){
-            $clientOriginalExtension = explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
-        }
 
-        $newImage =  Random::character(18).'.'.$clientOriginalExtension;
-
-        $folder = 'storage/app/public/products/';
-
-        if(!is_dir($folder)){
-            mkdir($folder, 0777, true);
-        }
-        if($image){
-            \Image::make($request->get('image'))->save(public_path($folder).$newImage);
-            $path =$folder.$newImage;
-        }
-
-        
-        // if (!is_dir("storage/app/public/products")) {
-        //     mkdir("storage/app/public/products");
+        ////////////////////////////////////////
+        // do luu anh tren csdl nen khong su dung
+        // $path = "";
+        // $clientOriginalExtension = 'jpg';
+        // if($image){
+        //     $clientOriginalExtension = explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
         // }
-        
-        // $nameImage = Random::character(18).'.jpg';
 
-        // $image = 'storage/app/public/products/' . $nameImage;
-        
+        // $newImage =  Random::character(18).'.'.$clientOriginalExtension;
 
+        // $folder = 'storage/app/public/products/';
+
+        // if(!is_dir($folder)){
+        //     mkdir($folder, 0777, true);
+        // }
+        // if($image){
+        //     \Image::make($request->get('image'))->save(public_path($folder).$newImage);
+        //     $path =$folder.$newImage;
+        // } 
+
+        /////////////////////////////////////////////
+        // do luu anh tren csdl nen create
+        $ipro = $this->imageProduct->create([
+                'ipro_image' => $image
+            ]);
+        ////////////////////////////////////////////
         $product = $this->productModel->create([
             'pro_name'          => $name,
-            'pro_image'         => $path, //$image,
+            'pro_image'         => $ipro->ipro_id, //$image,
             'pro_im_price'      => $priceImport,
             'pro_ex_price'      => $priceExport,
             'pro_amount'        => $amount,
@@ -110,7 +138,7 @@ class ProductController extends Controller
             'pro_type'          => $proType
         ]);
         if($product){
-            //copy($path, $image);
+
             $id = $product->pro_id;
             $product =  $this->productModel->where('pro_id', $id)->with('productType')->first();
             $product= $this->productTransformer->transformItem($product);
@@ -139,21 +167,35 @@ class ProductController extends Controller
 
         $file = $params['image'] ?? null;
         if($file){
-            $image =request('image');
-   
-            $clientOriginalExtension = explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
-
-            $newImage =  Random::character(18).'.'.$clientOriginalExtension;
-
-            $folder = 'storage/app/public/products/';
-
-            if(!is_dir($folder)){
-                mkdir($folder, 0777, true);
+            $id = $product->pro_image ?? 0;
+            $ipro =  $this->imageProduct->where('ipro_id', $id)->first();
+            if($ipro){
+                $ipro->update([
+                    'ipro_image' => $file
+                ]);
+            }else{
+                $ipro = $this->imageProduct->create([
+                    'ipro_image' => $image
+                ]);
             }
 
-            \Image::make($request->get('image'))->save(public_path($folder).$newImage);
+            $image = $ipro->ipro_id;
 
-            $image =$folder.$newImage;
+            // $image =request('image');
+   
+            // $clientOriginalExtension = explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
+
+            // $newImage =  Random::character(18).'.'.$clientOriginalExtension;
+
+            // $folder = 'storage/app/public/products/';
+
+            // if(!is_dir($folder)){
+            //     mkdir($folder, 0777, true);
+            // }
+
+            // \Image::make($request->get('image'))->save(public_path($folder).$newImage);
+
+            // $image =$folder.$newImage;
         }
         if($product->update([
                 'pro_name' => $name,
