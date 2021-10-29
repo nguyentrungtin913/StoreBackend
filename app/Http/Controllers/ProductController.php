@@ -60,20 +60,20 @@ class ProductController extends Controller
         $id = $image ?? 0;
         $ipro =  $this->imageProduct->where('ipro_id', $id)->first();
         $clientOriginalExtension = 'jpg';
-        if($ipro->ipro_image){
-            // $clientOriginalExtension = explode('/', explode(':', substr($ipro->ipro_image, 0, strpos($ipro->ipro_image, ';')))[1])[1];
+        if($ipro){
             $clientOriginalExtension = explode('/',explode(';',strval($ipro->ipro_image))[0])[1];
+            $output_file  = 'storage/app/public/products/tmp.'.$clientOriginalExtension;
+            $ifp = fopen( $output_file, 'wb' ); 
+            $data = explode( ',', $ipro->ipro_image );
+
+            fwrite( $ifp, base64_decode( $data[ 1 ] ) );
+            fclose( $ifp );
+
+            $path = $output_file; 
+        }else{
+            $path = 'storage/app/public/products/no-image.png';            
         }
-
-        $output_file  = 'storage/app/public/products/tmp.'.$clientOriginalExtension;
-        $ifp = fopen( $output_file, 'wb' ); 
-        $data = explode( ',', $ipro->ipro_image );
-
-        fwrite( $ifp, base64_decode( $data[ 1 ] ) );
-        fclose( $ifp ); 
-
-        $path = $output_file;
-
+        
         if (!\File::exists($path)) {
             abort(404);
         }
@@ -86,7 +86,6 @@ class ProductController extends Controller
     public function save(Request $request, Response $response)
     {
         $params=$request->all();
-          
         if (!$this->productValidator->setRequest($request)->save()) {
             $errors = $this->productValidator->getErrors();
             return ResponseHelper::errors($response, $errors);
@@ -98,8 +97,6 @@ class ProductController extends Controller
         $amountSell     = $params['amountSell'] ?? 0;
         $note           = $params['note'] ?? null;
         $proType        = $params['type'];
-
-        
         $image =request('image');
 
         ////////////////////////////////////////
@@ -109,11 +106,8 @@ class ProductController extends Controller
         // if($image){
         //     $clientOriginalExtension = explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
         // }
-
         // $newImage =  Random::character(18).'.'.$clientOriginalExtension;
-
         // $folder = 'storage/app/public/products/';
-
         // if(!is_dir($folder)){
         //     mkdir($folder, 0777, true);
         // }
@@ -121,7 +115,6 @@ class ProductController extends Controller
         //     \Image::make($request->get('image'))->save(public_path($folder).$newImage);
         //     $path =$folder.$newImage;
         // } 
-
         /////////////////////////////////////////////
         // do luu anh tren csdl nen create
         $ipro = $this->imageProduct->create([
@@ -139,7 +132,6 @@ class ProductController extends Controller
             'pro_type'          => $proType
         ]);
         if($product){
-
             $id = $product->pro_id;
             $product =  $this->productModel->where('pro_id', $id)->with('productType')->first();
             $product= $this->productTransformer->transformItem($product);
@@ -151,10 +143,10 @@ class ProductController extends Controller
     public function update(Request $request, Response $response)
     {
         $params = $request->all();
-        // if (!$this->productTypeValidator->setRequest($request)->update()) {
-        //     $errors = $this->productTypeValidator->getErrors();
-        //     return ResponseHelper::errors($response, $errors);
-        // }
+        if (!$this->productValidator->setRequest($request)->update()) {
+            $errors = $this->productTypeValidator->getErrors();
+            return ResponseHelper::errors($response, $errors);
+        }
         $product = $this->productModel->where('pro_id', $params['id'])->first();
 
         $name           = $params['name'] ?? $product->pro_name;
@@ -225,13 +217,15 @@ class ProductController extends Controller
             return ResponseHelper::errors($response, $errors);
         }
         $id = $param['id'] ?? null;
-        if($this->productModel->where('pro_id', $id)->update(['pro_deleted' => 1])) {
-            $product = $this->productModel->where('pro_id', $id)->first();
+        $product = $this->productModel->where('pro_id', $id)->first();
+        if($product->update(['pro_deleted' => 1])) {
+            $ipro =  $this->imageProduct->where('ipro_id', $product->pro_image)->first();
+            if($ipro){
+                $ipro->delete();
+            }
             $product = $this->productTransformer->transformItem($product);
             return ResponseHelper::success($response, compact('product'), 'Success Delete  product success');
         }
-
         return ResponseHelper::requestFailed($response);
-
     }
 }

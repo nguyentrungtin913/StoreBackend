@@ -26,6 +26,15 @@ class ProductValidator extends BaseValidator
             return true;
         }
     }
+
+    public function requireId()
+    {
+        if(!$this->requireParam('id', 'Vui lòng nhập sản phẩm !')){
+            return false;
+        }else{
+            return true;
+        }
+    }
     public function checkNumericData()
     {
         if(
@@ -70,9 +79,19 @@ class ProductValidator extends BaseValidator
             return true;
         }
     }
+
+
     public function save()
     {
         if (!$this->requireData() || !$this->checkNumericData() || !$this->checkProductTypeExist() || !$this->checkNumericAmount()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    public function update()
+    {
+        if (!$this->requireData() || !$this->requireId() || !$this->checkNumericData() || !$this->checkProductTypeExist() || !$this->checkNumericAmount()  || !$this->checkProductExist()) {
             return false;
         } else {
             return true;

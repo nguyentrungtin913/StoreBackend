@@ -34,7 +34,10 @@ class UserController extends Controller
         $time = time() + (60 * 60 * 24 );
         $key = $email.$time;
         $accessToken = JwtHelper::generate($key);
-
+        $userLogin = $this->tokenModel->where('token_email', $email)->first();
+        if($userLogin){
+            $userLogin->delete();
+        }
         $result = $this->tokenModel->create([
             'token_value'   => $accessToken,
             'token_email'   => $email,
