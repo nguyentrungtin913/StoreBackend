@@ -61,7 +61,8 @@ class ProductController extends Controller
         $ipro =  $this->imageProduct->where('ipro_id', $id)->first();
         $clientOriginalExtension = 'jpg';
         if($ipro->ipro_image){
-            $clientOriginalExtension = explode('/', explode(':', substr($ipro->ipro_image, 0, strpos($ipro->ipro_image, ';')))[1])[1];
+            // $clientOriginalExtension = explode('/', explode(':', substr($ipro->ipro_image, 0, strpos($ipro->ipro_image, ';')))[1])[1];
+            $clientOriginalExtension = explode('/',explode(';',$ipro->ipro_image)[0])[1];
         }
 
         $output_file  = 'storage/app/public/products/tmp.'.$clientOriginalExtension;
