@@ -64,8 +64,8 @@ class ProductController extends Controller
             // $clientOriginalExtension = explode('/', explode(':', substr($ipro->ipro_image, 0, strpos($ipro->ipro_image, ';')))[1])[1];
             $a=explode(';',strval($ipro->ipro_image))[0];
             echo $a.'<br/>';
-            $b=explode('/',$a)[1];
-            echo $b;
+            // $b=explode('/',$a)[1];
+            // echo $b;
             return null;
             //$clientOriginalExtension = $b;
         }
