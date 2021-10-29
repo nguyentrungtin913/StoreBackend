@@ -241,6 +241,7 @@ class OrderController extends Controller
         $dateEnd = $params['dateEnd'] ?? null;
         $type = $params['type'] ?? null;
         $status = $params['status'] ?? 1;
+        $typePro = $params['typePro'] ?? null;
 
         if($type === 1){
             $sortType = 'asc';
@@ -287,7 +288,10 @@ class OrderController extends Controller
 
 
         if($status == 1){
-          $query = $this->productModel->whereIn('pro_id',$arr)->with('productType');
+            $query = $this->productModel->whereIn('pro_id',$arr)->with('productType');
+            if($typePro){
+               $query = $query->where('pro_type',$typePro); 
+            }
             $listProduct = $query->get();
             
             $listProduct = $this->productTransformer->transformCollection($listProduct);
@@ -301,6 +305,9 @@ class OrderController extends Controller
             }  
         }else{
             $query = $this->productModel->whereNotIn('pro_id',$arr)->with('productType');
+            if($typePro){
+               $query = $query->where('pro_type',$typePro); 
+            }
             $listProduct = $query->get();
             
             $listProduct = $this->productTransformer->transformCollection($listProduct);
