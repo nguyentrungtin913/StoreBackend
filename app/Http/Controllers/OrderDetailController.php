@@ -27,8 +27,6 @@ class OrderDetailController extends Controller
         $perPage = $params['perPage'] ?? 0;
         $with = $params['with'] ?? [];
 
-        $orderBy = $this->productTypeModel->orderBy($params['sortBy'] ?? null, $params['sortType'] ?? null);
-
         $query = $this->productTypeModel->filter($this->productTypeModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
 
         $query = $this->productTypeModel->includes($query, $with);

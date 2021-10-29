@@ -21,26 +21,28 @@ Route::get('/', function () {
 //Route::post('/test','App\Http\Controllers\ProductTypeController@test');
 
 //auth
-Route::get('/logout','App\Http\Controllers\UserController@logout');
+Route::get('/logout','App\Http\Controllers\UserController@logout')->middleware('auth');
 Route::post('/login','App\Http\Controllers\UserController@login');
 
 //productType
-Route::get('/product-types','App\Http\Controllers\ProductTypeController@index')->middleware('auth');
-Route::get('/product-type','App\Http\Controllers\ProductTypeController@find')->middleware('auth');
-Route::post('/product-type','App\Http\Controllers\ProductTypeController@save')->middleware('auth');
+Route::get('/product-types','App\Http\Controllers\ProductTypeController@index');
+Route::get('/product-type','App\Http\Controllers\ProductTypeController@find');
+Route::post('/product-type','App\Http\Controllers\ProductTypeController@save');
 Route::put('/product-type','App\Http\Controllers\ProductTypeController@update');
-Route::delete('/product-type','App\Http\Controllers\ProductTypeController@delete')->middleware('auth');
+Route::delete('/product-type','App\Http\Controllers\ProductTypeController@delete');
 
 
 //product
 Route::get('/products','App\Http\Controllers\ProductController@index');
-Route::get('/product','App\Http\Controllers\ProductController@find')->middleware('auth');
-Route::post('/product','App\Http\Controllers\ProductController@save')->middleware('auth');
+Route::get('/product','App\Http\Controllers\ProductController@find');
+Route::post('/product','App\Http\Controllers\ProductController@save');
 Route::put('/product','App\Http\Controllers\ProductController@update');
-Route::delete('/product','App\Http\Controllers\ProductController@delete')->middleware('auth');
+Route::delete('/product','App\Http\Controllers\ProductController@delete');
+Route::get('/image/{image}','App\Http\Controllers\ProductController@getImage');
+
 
 //order
-Route::post('/order','App\Http\Controllers\OrderController@sell')->middleware('auth');
+Route::post('/order','App\Http\Controllers\OrderController@sell');
 Route::post('/order-buy','App\Http\Controllers\OrderController@buy');
 
 Route::get('/orders','App\Http\Controllers\OrderController@index');
