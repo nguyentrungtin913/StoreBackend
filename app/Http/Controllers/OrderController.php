@@ -150,7 +150,6 @@ class OrderController extends Controller
             $order = $this->orderTransformer->transformItem($order);
             return ResponseHelper::success($response, compact('order'), 'Success Delete order success');
         }
-
         return ResponseHelper::requestFailed($response);
     }
 

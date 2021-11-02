@@ -12,11 +12,13 @@ class ProductType extends BaseModel
     protected $primaryKey = 'type_id';
     const ALIAS = [
         'type_id'        => 'id',
-        'type_name'      => 'name'
+        'type_name'      => 'name',
+        'type_vote'      => 'vote',
     ];
 
     protected $fillable = [
         'type_name',
+        'type_vote',
         'type_delete'
     ];
     static function query()

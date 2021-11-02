@@ -60,6 +60,44 @@ class ProductTypeController extends Controller
 
     }
 
+    public function rating(Request $request, Response $response)
+    {
+        $param = $request->all();
+
+        if (!$this->productTypeValidator->setRequest($request)->checkProductTypeExist()) {
+            $errors = $this->productTypeValidator->getErrors();
+            return ResponseHelper::errors($response, $errors);
+        }
+        
+        $typeId = $param['typeId'] ?? null;
+        $typeVote = $param['typeVote'] ?? 0;
+        $productType = $this->productTypeModel->where('type_id', $typeId)->first();
+        $productType->update([
+            'type_vote' => $typeVote
+        ]);
+        $productType = $this->productTypeTransformer->transformItem($productType);
+        return ResponseHelper::success($response, compact('productType'));
+
+    }
+    public function getProTypeByVote(Request $request, Response $response)
+    {
+        $params = $request->all();
+
+        $perPage = $params['perPage'] ?? 0;
+        $with = $params['with'] ?? [];
+        $sortBy = 'vote';
+        $sortType = 'desc';
+
+        $orderBy = $this->productTypeModel->orderBy($sortBy, $sortType);
+
+        $query = $this->productTypeModel->filter($this->productTypeModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
+
+        $query = $this->productTypeModel->includes($query, $with);
+
+        $data = DataHelper::getList($query, $this->productTypeTransformer, $perPage, 'ListAllProductType');
+        
+        return ResponseHelper::success($response, $data);
+    }
     public function save(Request $request, Response $response)
     {
         $params = $request->all();

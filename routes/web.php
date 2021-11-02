@@ -29,8 +29,9 @@ Route::get('/product-types','App\Http\Controllers\ProductTypeController@index');
 Route::get('/product-type','App\Http\Controllers\ProductTypeController@find');
 Route::post('/product-type','App\Http\Controllers\ProductTypeController@save');
 Route::put('/product-type','App\Http\Controllers\ProductTypeController@update');
+Route::put('/rating-product-type','App\Http\Controllers\ProductTypeController@rating');
 Route::delete('/product-type','App\Http\Controllers\ProductTypeController@delete');
-
+Route::get('/product-types-by-vote','App\Http\Controllers\ProductTypeController@getProTypeByVote');
 
 //product
 Route::get('/products','App\Http\Controllers\ProductController@index');

@@ -36,25 +36,4 @@ class OrderDetailController extends Controller
         return ResponseHelper::success($response, $data);
     }
 
-    public function find(Request $request, Response $response)
-    {
-        
-
-    }
-
-    public function save(Request $request, Response $response)
-    {
-        
-        
-    }
-
-    public function update(Request $request, Response $response)
-    {
-       
-    }
-
-    public function delete(Request $request, Response $response)
-    {
-        
-    }
 }
