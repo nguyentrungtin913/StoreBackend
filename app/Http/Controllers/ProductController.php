@@ -248,4 +248,29 @@ class ProductController extends Controller
         
         return ResponseHelper::success($response, $data);
     }
+    public function getProductsByArrayId(Request $request, Response $response)
+    {
+        $params = $request->all();
+        $arr =  $params['arr'] ?? [];
+        $result = [];
+        $keys = [];
+        $values = [];
+
+        for($i = 0; $i<count($arr); $i++){
+            $temp = explode(":",$arr[$i]);
+            array_push( $keys, $temp[0] );
+            array_push( $values, $temp[1] );
+        }
+        $products = $this->productModel->whereIn('pro_id', $keys)->get();
+
+        for ($i=0; $i < count($values); $i++) {
+            for ($j=0; $j < count($products) ; $j++) { 
+                if($keys[$i] == $products[$j]->pro_id ){
+                    $products[$j]->pro_amount_sell = $values[$i];
+                }
+            }
+        }
+        $products = $this->productTransformer->transformCollection($products);
+        return ResponseHelper::success($response, compact('products'), 'ListProductById');
+    }
 }
