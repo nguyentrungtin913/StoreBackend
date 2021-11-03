@@ -39,6 +39,8 @@ Route::get('/product','App\Http\Controllers\ProductController@find');
 Route::post('/product','App\Http\Controllers\ProductController@save');
 Route::put('/product','App\Http\Controllers\ProductController@update');
 Route::delete('/product','App\Http\Controllers\ProductController@delete');
+Route::get('/products-by-pro-type','App\Http\Controllers\ProductController@getProductsByProType');
+
 Route::get('/image/{image}','App\Http\Controllers\ProductController@getImage');
 
 

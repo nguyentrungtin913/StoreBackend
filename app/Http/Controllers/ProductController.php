@@ -42,7 +42,7 @@ class ProductController extends Controller
 
     public function find(Request $request, Response $response)
     {
-      $params = $request->all();
+        $params = $request->all();
 
         if (!$this->productValidator->setRequest($request)->checkProductExist()) {
             $errors = $this->productValidator->getErrors();
@@ -227,5 +227,25 @@ class ProductController extends Controller
             return ResponseHelper::success($response, compact('product'), 'Success Delete  product success');
         }
         return ResponseHelper::requestFailed($response);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////
+
+    public function getProductsByProType(Request $request, Response $response)
+    {
+        $params = $request->all();
+
+        $perPage = $params['perPage'] ?? 0;
+        $with = ['productType'];
+        $type = $params['proType'] ?? 0;
+        $orderBy = $this->productModel->orderBy($params['sortBy'] ?? null, $params['sortType'] ?? null);
+
+        $query = $this->productModel->filter($this->productModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
+        $query->where([['pro_amount', ">", 0], ['pro_type', '=', $type]]);
+        $query = $this->productModel->includes($query, $with);
+
+        $data = DataHelper::getList($query, $this->productTransformer, $perPage, 'ListAllProduct');
+        
+        return ResponseHelper::success($response, $data);
     }
 }
