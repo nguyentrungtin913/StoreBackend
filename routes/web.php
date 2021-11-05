@@ -40,6 +40,7 @@ Route::post('/product','App\Http\Controllers\ProductController@save');
 Route::put('/product','App\Http\Controllers\ProductController@update');
 Route::delete('/product','App\Http\Controllers\ProductController@delete');
 Route::get('/products-by-pro-type','App\Http\Controllers\ProductController@getProductsByProType');
+Route::get('/products-sold-out','App\Http\Controllers\ProductController@listProductSoldOut');
 
 Route::get('/image/{image}','App\Http\Controllers\ProductController@getImage');
 Route::post('/products-by-id','App\Http\Controllers\ProductController@getProductsByArrayId');

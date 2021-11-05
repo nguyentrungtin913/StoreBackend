@@ -299,7 +299,7 @@ class ProductController extends Controller
     {
         $params = $request->all();
         $arr =  $params['arr'] ?? [];
-        $name=  $params['name'] ?? 'My Name';
+        $name=  $params['name'] ?? 'No Name';
         $phone=  $params['phone'] ?? '0909090909';
         $result = [];
         $keys = [];
@@ -345,5 +345,22 @@ class ProductController extends Controller
         return ResponseHelper::success($response, compact('cart'), 'Mua thành công');
     }
 
+    public function listProductSoldOut(Request $request, Response $response)
+    {
+        $params = $request->all();
+
+        $perPage = $params['perPage'] ?? 0;
+        $with = $params['with'] ?? [];
+
+        $orderBy = $this->productModel->orderBy($params['sortBy'] ?? null, $params['sortType'] ?? null);
+
+        $query = $this->productModel->filter($this->productModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
+        $query = $query->where([['pro_amount',"<",1]]);
+        $query = $this->productModel->includes($query, $with);
+
+        $data = DataHelper::getList($query, $this->productTransformer, $perPage, 'listProductSoldOut');
+        
+        return ResponseHelper::success($response, $data);
+    }
 
 }
