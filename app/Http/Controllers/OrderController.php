@@ -42,6 +42,7 @@ class OrderController extends Controller
         $values = array();
         $total = 0;
         $date = date("Y-m-d");
+        
         foreach ($products as $value) {
             array_push($keys, $value['id']);
             array_push($values, $value['amountSell']);

@@ -6,20 +6,26 @@ use Facade\FlareClient\Http\Response as HttpResponse;
 use Illuminate\Http\Request;
 use Response;
 use App\Models\Product;
+use App\Models\Cart;
+use App\Models\CartDetail;
 use App\Models\ImageProduct;
 use App\Validators\ProductValidator;
 use App\Transformers\ProductTransformer;
+use App\Transformers\CartTransformer;
 use App\Helpers\DataHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\Random;
 class ProductController extends Controller
 {
-    public function __construct(Product $productModel, ProductTransformer $productTransformer, ProductValidator $productValidator, ImageProduct $imageProduct)
+    public function __construct(Product $productModel, ProductTransformer $productTransformer, ProductValidator $productValidator, ImageProduct $imageProduct, Cart $cartModel, CartDetail $cartDetailModel, CartTransformer $cartTransformer)
     {
         $this->productModel = $productModel;
         $this->productTransformer = $productTransformer;
         $this->productValidator = $productValidator;
         $this->imageProduct = $imageProduct;
+        $this->cartModel = $cartModel;
+        $this->cartDetailModel = $cartDetailModel;
+        $this->cartTransformer = $cartTransformer;
     }
 
     public function index(Request $request, Response $response)
@@ -272,5 +278,54 @@ class ProductController extends Controller
         }
         $products = $this->productTransformer->transformCollection($products);
         return ResponseHelper::success($response, compact('products'), 'ListProductById');
+    }
+
+    public function addToCart(Request $request, Response $response)
+    {
+        $params = $request->all();
+        $arr =  $params['arr'] ?? [];
+        $name=  $params['name'] ?? 'My Name';
+        $phone=  $params['phone'] ?? '0909090909';
+        $result = [];
+        $keys = [];
+        $values = [];
+        $total = 0;
+
+        for($i = 0; $i<count($arr); $i++){
+            $temp = explode(":",$arr[$i]);
+            array_push( $keys, $temp[0] );
+            array_push( $values, $temp[1] );
+        }
+        $products = $this->productModel->whereIn('pro_id', $keys)->get();
+
+        for ($i=0; $i < count($values); $i++) {
+            for ($j=0; $j < count($products) ; $j++) { 
+                if($keys[$i] == $products[$j]->pro_id ){
+                    $products[$j]->pro_amount_sell = $values[$i];
+                }
+            }
+        }
+
+        foreach ($products as $product) {
+            $total+= ($product->pro_ex_price * $product->pro_amount_sell);
+        }
+
+        $cart = $this->cartModel->create([
+            'cart_name'         => $name,
+            'cart_phone'        => $phone,
+            'cart_total'        => $total,
+        ]);
+        if($cart)
+        {
+            foreach ($products as $product) {
+                $cartDetail = $this->cartDetailModel->create([
+                    'pro_id'            => $product->pro_id,
+                    'cart_id'           => $cart->cart_id,
+                    'detail_amount'     => $product->pro_amount_sell,
+                ]);
+            }
+        }
+        $cart = $this->cartTransformer->transformItem($cart);
+        return ResponseHelper::success($response, compact('cart'), 'Mua thành công');
     }
 }

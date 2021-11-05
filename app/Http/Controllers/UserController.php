@@ -62,4 +62,27 @@ class UserController extends Controller
         }
         return ResponseHelper::requestFailed($response);
     }
+    public function sentMail()
+    {
+        $to      = "abc@example.com";
+        $subject = "Tiêu đề email";
+        $message = "<h1>Đây là Email có chứa HTML</h1>
+                    <p>Đoạn văn trong Email</p>";       //MỚI
+        $header  =  "From:myemail@exmaple.com \r\n";
+        $header .=  "Cc:other@exmaple.com \r\n";
+        
+        $header .= "MIME-Version: 1.0\r\n";             //MỚI
+        $header .= "Content-type: text/html\r\n";       //MỚI
+
+        $success = mail ($to,$subject,$message,$header);
+
+        if( $success == true )
+        {
+            echo "Đã gửi mail thành công...";
+        }
+        else
+        {
+              echo "Không gửi đi được...";
+        }
+    }
 }

@@ -43,7 +43,15 @@ Route::get('/products-by-pro-type','App\Http\Controllers\ProductController@getPr
 
 Route::get('/image/{image}','App\Http\Controllers\ProductController@getImage');
 Route::post('/products-by-id','App\Http\Controllers\ProductController@getProductsByArrayId');
+Route::post('/customer-buy','App\Http\Controllers\ProductController@addToCart');
 
+//cart
+Route::get('/carts','App\Http\Controllers\CartController@index');
+Route::put('/cart','App\Http\Controllers\CartController@updateStatus');
+Route::get('/cart','App\Http\Controllers\CartController@findCartById');
+
+//cartDetail
+Route::get('/cart-details','App\Http\Controllers\CartDetailController@findCartDetailByCartId');
 
 //order
 Route::post('/order','App\Http\Controllers\OrderController@sell');
