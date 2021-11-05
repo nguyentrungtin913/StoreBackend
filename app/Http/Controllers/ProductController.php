@@ -9,15 +9,29 @@ use App\Models\Product;
 use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\ImageProduct;
+use App\Models\Order;
+use App\Models\OrderDetail;
+
 use App\Validators\ProductValidator;
 use App\Transformers\ProductTransformer;
+
 use App\Transformers\CartTransformer;
+use App\Transformers\OrderDetailTransformer;
+use App\Transformers\OrderTransformer;
+
 use App\Helpers\DataHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\Random;
 class ProductController extends Controller
 {
-    public function __construct(Product $productModel, ProductTransformer $productTransformer, ProductValidator $productValidator, ImageProduct $imageProduct, Cart $cartModel, CartDetail $cartDetailModel, CartTransformer $cartTransformer)
+    public function __construct(
+        Product $productModel, 
+        ProductTransformer $productTransformer, 
+        ProductValidator $productValidator, 
+        ImageProduct $imageProduct, 
+        Cart $cartModel, 
+        CartDetail $cartDetailModel, 
+        CartTransformer $cartTransformer)
     {
         $this->productModel = $productModel;
         $this->productTransformer = $productTransformer;
@@ -26,6 +40,7 @@ class ProductController extends Controller
         $this->cartModel = $cartModel;
         $this->cartDetailModel = $cartDetailModel;
         $this->cartTransformer = $cartTransformer;
+
     }
 
     public function index(Request $request, Response $response)
@@ -325,7 +340,10 @@ class ProductController extends Controller
                 ]);
             }
         }
+
         $cart = $this->cartTransformer->transformItem($cart);
         return ResponseHelper::success($response, compact('cart'), 'Mua thành công');
     }
+
+
 }

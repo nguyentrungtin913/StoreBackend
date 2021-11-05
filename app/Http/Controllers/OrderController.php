@@ -83,6 +83,7 @@ class OrderController extends Controller
     {
         $params = $request->all();
         $name = $params['name'] ?? null;
+
         $products = $params['order'];
         $keys = array();
         $values = array();
