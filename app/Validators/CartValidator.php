@@ -41,5 +41,15 @@ class CartValidator extends BaseValidator
             return true;
         }
     }
+    public function productsCart($productsCart)
+    {
+        for ($i=0; $i < count($productsCart) ; $i++) { 
+            if($productsCart[$i]->detail_amount > $productsCart[$i]->product->pro_amount){
+                $this->setError(400, 'error', 'Product insufficient', 'Sản phẩm không đủ để xuất!');
+                return false;
+            }
+        }
+        return true;
+    }
 }
 ?>

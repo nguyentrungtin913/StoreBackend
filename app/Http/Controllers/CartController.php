@@ -95,28 +95,35 @@ class CartController extends Controller
         $id = $params['cartId'] ?? 0;
         $cart = $this->cartModel->where('cart_id',$id)->first();
         if($cart){
-            $cart->update([
-                'cart_status' => $status,
-            ]);
-            
             if($status === 1)
             {
-                $products = $this->cartDetailModel->with('product')->where('cart_id', $cart->cart_id)->get();    
+                $productsCart = $this->cartDetailModel->with('product')->where('cart_id', $cart->cart_id)->get();    
                 $name = $cart->cart_name;
-                $this->addOrder($products, $name);
+                return $this->addOrder($cart, $productsCart, $name, $response);
             }
+            $cart->update([
+                'cart_status' => 2,
+            ]);
             $cart = $this->cartTransformer->transformItem($cart);
             return ResponseHelper::success($response, compact('cart'));
         }
         return ResponseHelper::requestFailed($response);
     }
     
-    public function addOrder($products, $name )
+    public function addOrder($cart, $productsCart, $name, $response )
     {
+        if (!$this->cartValidator->productsCart($productsCart)) {
+            $errors = $this->cartValidator->getErrors();
+            return ResponseHelper::errors($response, $errors);
+        }
+        $cart->update([
+            'cart_status' => 1,
+        ]);
+
         $total = 0;
         $date = date("Y-m-d");
         
-        foreach ($products as $value) {
+        foreach ($productsCart as $value) {
             $total += ($value->detail_amount * $value->product->pro_ex_price);
         }
 
@@ -127,7 +134,7 @@ class CartController extends Controller
             'order_date'    => $date
         ]);
         if($order){
-            foreach($products as $value){
+            foreach($productsCart as $value){
                 $detail = $this->orderDetailModel->create([
                     'order_id'      => $order->order_id,
                     'pro_id'        => $value->pro_id,
@@ -145,6 +152,9 @@ class CartController extends Controller
                 }
             }
         }
+
+        $cart = $this->cartTransformer->transformItem($cart);
+        return ResponseHelper::success($response, compact('cart'));
 
     }
 }   
