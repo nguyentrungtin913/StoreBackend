@@ -31,11 +31,11 @@ class UserValidator extends BaseValidator
             if($user->user_password === md5($password)){
                 return true;
             }else{
-                $this->setError(400, 'Error', "Incorrect password", 'Mật khẩu không chính xác !');
+                $this->setError(400, 'Error', 'Incorrect password', 'Mật khẩu không chính xác !');
                 return false;
             }
         }else{
-            $this->setError(400, 'Error', "Email not exist", 'Email không tồn tại !');
+            $this->setError(400, 'Error', 'Email not exist', 'Email không tồn tại !');
             return false;
         }
     }

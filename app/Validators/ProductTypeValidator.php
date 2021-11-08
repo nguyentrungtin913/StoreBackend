@@ -25,9 +25,9 @@ class ProductTypeValidator extends BaseValidator
     public function checkNameExist()
     {
         $productTypeName = $this->request->get('typeName') ?? null;
-        $productType = $this->productType->query()->where("type_name" , $productTypeName)->first();
+        $productType = $this->productType->query()->where('type_name' , $productTypeName)->first();
         if($productType){
-            $this->setError(400, 'error', "Type name exist", 'Tên loại sản phẩm đã tồn tại!');
+            $this->setError(400, 'error', 'Type name exist', 'Tên loại sản phẩm đã tồn tại!');
             return false;
         }else{
             return true;
@@ -39,9 +39,9 @@ class ProductTypeValidator extends BaseValidator
         $productTypeName = $this->request->get('typeName') ?? null;
         $productTypeId = $this->request->get('typeId') ?? null;
 
-        $productType = $this->productType->where([["type_name" , $productTypeName], ["type_id", "!=", $productTypeId]])->first();
+        $productType = $this->productType->where([['type_name' , $productTypeName], ['type_id', '!=', $productTypeId]])->first();
         if($productType){
-            $this->setError(400, 'Error', "Type name exist", 'Tên loại sản phẩm đã tồn tại!');
+            $this->setError(400, 'Error', 'Type name exist', 'Tên loại sản phẩm đã tồn tại!');
             return false;
         }else{
             return true;
@@ -51,9 +51,9 @@ class ProductTypeValidator extends BaseValidator
     public function checkProductTypeExist()
     {
         $productTypeId = $this->request->get('typeId') ?? null;
-        $productType = $this->productType->where("type_id" , $productTypeId)->first();
+        $productType = $this->productType->where('type_id' , $productTypeId)->first();
         if(!$productType){
-            $this->setError(400, 'Error', "Product type not exist", 'Loại sản phẩm không tồn tại!');
+            $this->setError(400, 'Error', 'Product type not exist', 'Loại sản phẩm không tồn tại!');
             return false;
         }else{
             return true;

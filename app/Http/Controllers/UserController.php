@@ -7,11 +7,16 @@ use Illuminate\Http\Request;
 use Response;
 use App\Models\User;
 use App\Models\Token;
+
 use App\Validators\UserValidator;
+
 use App\Transformers\TokenTransformer;
+
 use App\Helpers\JwtHelper;
 use App\Helpers\DataHelper;
 use App\Helpers\ResponseHelper;
+
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -64,25 +69,14 @@ class UserController extends Controller
     }
     public function sentMail()
     {
-        $to      = "abc@example.com";
-        $subject = "Tiêu đề email";
-        $message = "<h1>Đây là Email có chứa HTML</h1>
-                    <p>Đoạn văn trong Email</p>";       //MỚI
-        $header  =  "From:myemail@exmaple.com \r\n";
-        $header .=  "Cc:other@exmaple.com \r\n";
-        
-        $header .= "MIME-Version: 1.0\r\n";             //MỚI
-        $header .= "Content-type: text/html\r\n";       //MỚI
+        $data = [
+          'title'=>'Hellow Avijit',
+          'content'=>'This is a testing of mailing in Laravel using mailgun'
+        ];
 
-        $success = mail ($to,$subject,$message,$header);
-
-        if( $success == true )
-        {
-            echo "Đã gửi mail thành công...";
-        }
-        else
-        {
-              echo "Không gửi đi được...";
-        }
+        \Mail::send('nguyentrungtin913@gmail.com', $data, function($message) {
+            $message->to('nttin_18th1@student.agu.edu.vn', 'Avijit Biswas')
+                ->subject('This is Subject');
+        });
     }
 }

@@ -47,21 +47,42 @@ class ProductValidator extends BaseValidator
         }
     }
 
+    public function checkNumericPhone()
+    {
+        if(
+            !$this->checkNumeric('phone', 'Vui lòng nhập số điện thoại của bạn !')
+        ){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public function checkLengthPhone()
+    {
+        $phone = $this->request->get('phone') ?? null;
+        if(strlen($phone) < 9 || strlen($phone)>10){
+             $this->setError(400, 'Error', 'invalid_param', 'Vui lòng kiểm tra lại số điện thoại !');
+            return false;
+        }
+        return true;
+    }
+
     public function checkNumericAmount()
-   {
+    {
         if (!is_numeric($this->request->get('amount')) || $this->request->get('amount') < 0) {
-            $this->setError(400, 'invalid_param', "Vui lòng thêm số lượng sản phẩm là một số !");
+            $this->setError(400, 'Error', 'invalid_param', 'Vui lòng thêm số lượng sản phẩm là một số !');
             return false;
         }
        return true;
-   }
+    }
 
     public function checkProductTypeExist()
     {
         $productTypeId = $this->request->get('type') ?? null;
-        $productType = $this->productType->where("type_id" , $productTypeId)->first();
+        $productType = $this->productType->where('type_id' , $productTypeId)->first();
         if(!$productType){
-            $this->setError(400, 'Error', "Product type not exist", 'Vui lòng chọn lại loại sản phẩm !');
+            $this->setError(400, 'Error', 'Product type not exist', 'Vui lòng chọn lại loại sản phẩm !');
             return false;
         }else{
             return true;
@@ -71,9 +92,9 @@ class ProductValidator extends BaseValidator
     public function checkProductExist()
     {
         $id = $this->request->get('id') ?? null;
-        $product = $this->product->where("pro_id" , $id)->first();
+        $product = $this->product->where('pro_id' , $id)->first();
         if(!$product){
-            $this->setError(400, 'Error', "Product not exist", 'Sản phẩm không tồn tại');
+            $this->setError(400, 'Error', 'Product not exist', 'Sản phẩm không tồn tại');
             return false;
         }else{
             return true;
@@ -92,6 +113,15 @@ class ProductValidator extends BaseValidator
     public function update()
     {
         if (!$this->requireData() || !$this->requireId() || !$this->checkNumericData() || !$this->checkProductTypeExist() || !$this->checkNumericAmount()  || !$this->checkProductExist()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public function addToCart()
+    {
+        if (!$this->checkNumericPhone() || !$this->checkLengthPhone()) {
             return false;
         } else {
             return true;

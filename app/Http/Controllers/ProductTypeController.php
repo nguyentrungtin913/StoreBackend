@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Facade\FlareClient\Http\Response as HttpResponse;
 use Illuminate\Http\Request;
 use Response;
+
 use App\Models\ProductType;
+
 use App\Validators\ProductTypeValidator;
+
 use App\Transformers\ProductTypeTransformer;
+
 use App\Helpers\DataHelper;
 use App\Helpers\ResponseHelper;
 

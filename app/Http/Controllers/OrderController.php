@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use Facade\FlareClient\Http\Response as HttpResponse;
 use Illuminate\Http\Request;
 use Response;
+
 use App\Models\Order;
 use App\Models\OrderDetail;
-use App\Transformers\OrderDetailTransformer;
 use App\Models\Product;
+
+use App\Transformers\OrderDetailTransformer;
 use App\Transformers\ProductTransformer;
-use App\Validators\OrderValidator;
 use App\Transformers\OrderTransformer;
+
+use App\Validators\OrderValidator;
+
 use App\Helpers\DataHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\Random;
+
 use App\Exports\OrderExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
@@ -24,14 +29,15 @@ class OrderController extends Controller
     public function __construct(Order $orderModel, OrderTransformer $orderTransformer, OrderValidator $orderValidator, OrderDetail $orderDetailModel, Product $productModel, OrderDetailTransformer $orderDetailTransformer, ProductTransformer $productTransformer)
     {
         $this->orderModel = $orderModel;
-        $this->orderTransformer = $orderTransformer;
-        $this->orderValidator = $orderValidator;
         $this->orderDetailModel = $orderDetailModel;
         $this->productModel = $productModel;
+
         $this->orderDetailTransformer = $orderDetailTransformer;
         $this->productTransformer = $productTransformer;
-    }
+        $this->orderTransformer = $orderTransformer;
 
+        $this->orderValidator = $orderValidator;
+    }
     public function sell(Request $request, Response $response)
     {
         $params = $request->all();
@@ -75,10 +81,8 @@ class OrderController extends Controller
                 }
             }
         }
-        
         return $products;
     }
-
     public function buy(Request $request, Response $response)
     {
         $params = $request->all();
@@ -89,6 +93,7 @@ class OrderController extends Controller
         $values = array();
         $total = 0;
         $date = date("Y-m-d");
+
         foreach ($products as $value) {
             array_push($keys, $value['id']);
             array_push($values, $value['amountSell']);
@@ -123,7 +128,6 @@ class OrderController extends Controller
         
         return $products;
     }
-
     public function index(Request $request, Response $response)
     {
         $params = $request->all();
@@ -136,7 +140,6 @@ class OrderController extends Controller
         
         return ResponseHelper::success($response, $data);
     }
-
     public function delete(Request $request, Response $response)
     {
         $param = $request->all();
@@ -154,8 +157,6 @@ class OrderController extends Controller
         }
         return ResponseHelper::requestFailed($response);
     }
-
-
     public function exportCsv(Request $request)
     {
        //return Excel::download(new OrderExport, 'Orders.xlsx');

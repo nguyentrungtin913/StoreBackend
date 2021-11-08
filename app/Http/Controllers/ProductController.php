@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Facade\FlareClient\Http\Response as HttpResponse;
 use Illuminate\Http\Request;
 use Response;
+
 use App\Models\Product;
 use App\Models\Cart;
 use App\Models\CartDetail;
@@ -13,8 +14,8 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 
 use App\Validators\ProductValidator;
-use App\Transformers\ProductTransformer;
 
+use App\Transformers\ProductTransformer;
 use App\Transformers\CartTransformer;
 use App\Transformers\OrderDetailTransformer;
 use App\Transformers\OrderTransformer;
@@ -22,6 +23,7 @@ use App\Transformers\OrderTransformer;
 use App\Helpers\DataHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\Random;
+
 class ProductController extends Controller
 {
     public function __construct(
@@ -60,7 +62,6 @@ class ProductController extends Controller
         
         return ResponseHelper::success($response, $data);
     }
-
     public function find(Request $request, Response $response)
     {
         $params = $request->all();
@@ -75,7 +76,6 @@ class ProductController extends Controller
         $product = $this->productTransformer->transformItem($product);
         return ResponseHelper::success($response, compact('product'));
     }
-
     public function getImage($image)
     {
         $id = $image ?? 0;
@@ -160,7 +160,6 @@ class ProductController extends Controller
         }
         return ResponseHelper::requestFailed($response); 
     }
-
     public function update(Request $request, Response $response)
     {
         $params = $request->all();
@@ -229,7 +228,6 @@ class ProductController extends Controller
             return ResponseHelper::requestFailed($response);
         }
     }
-
     public function delete(Request $request, Response $response)
     {
         $param = $request->all();
@@ -298,9 +296,13 @@ class ProductController extends Controller
     public function addToCart(Request $request, Response $response)
     {
         $params = $request->all();
+        if (!$this->productValidator->setRequest($request)->addToCart()) {
+            $errors = $this->productValidator->getErrors();
+            return ResponseHelper::errors($response, $errors);
+        }
         $arr =  $params['arr'] ?? [];
         $name=  $params['name'] ?? 'No Name';
-        $phone=  $params['phone'] ?? '0909090909';
+        $phone=  $params['phone'] ?? '0000000000';
         $result = [];
         $keys = [];
         $values = [];

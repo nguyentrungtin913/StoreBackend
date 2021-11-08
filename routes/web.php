@@ -18,7 +18,7 @@ Route::get('/', function () {
 });
 
 
-//Route::post('/test','App\Http\Controllers\ProductTypeController@test');
+Route::get('/test','App\Http\Controllers\UserController@sentMail');
 
 //auth
 Route::get('/logout','App\Http\Controllers\UserController@logout')->middleware('auth');
