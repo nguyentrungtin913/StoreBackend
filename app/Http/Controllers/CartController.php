@@ -155,6 +155,18 @@ class CartController extends Controller
 
         $cart = $this->cartTransformer->transformItem($cart);
         return ResponseHelper::success($response, compact('cart'));
-
+    }
+    public function removeCart(Request $request, Response $response)
+    {
+       $carts = $this->cartModel->where([['cart_status', '>', 0]])->get();
+       foreach ($carts as $cart) {
+            $cartDetails = $this->cartDetailModel->where('cart_id', $cart->cart_id)->get();
+            foreach ($cartDetails as $cartDetail) {
+               $cartDetail->delete();
+            }
+            $cart->delete();
+       }
+       $carts = $this->cartTransformer->transformCollection($carts);
+       return ResponseHelper::success($response, compact('carts'));
     }
 }   

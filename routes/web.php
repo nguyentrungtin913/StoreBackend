@@ -50,6 +50,7 @@ Route::post('/customer-buy','App\Http\Controllers\ProductController@addToCart');
 Route::get('/carts','App\Http\Controllers\CartController@index');
 Route::put('/cart','App\Http\Controllers\CartController@updateStatus');
 Route::get('/cart','App\Http\Controllers\CartController@findCartById');
+Route::get('/carts-delete','App\Http\Controllers\CartController@removeCart');
 
 //cartDetail
 Route::get('/cart-details','App\Http\Controllers\CartDetailController@findCartDetailByCartId');
