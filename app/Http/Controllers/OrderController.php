@@ -97,7 +97,7 @@ class OrderController extends Controller
         foreach ($products as $value) {
             array_push($keys, $value['id']);
             array_push($values, $value['amountSell']);
-            $total += ($value['amountSell'] * $value['priceExport']);
+            $total += ($value['amountSell'] * $value['priceImport']);
         }
 
         $order = $this->orderModel->create([
