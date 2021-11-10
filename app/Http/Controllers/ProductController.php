@@ -365,4 +365,22 @@ class ProductController extends Controller
         return ResponseHelper::success($response, $data);
     }
 
+    public function customerSelect(Request $request, Response $response)
+    {
+        $params = $request->all();
+
+        $perPage = $params['perPage'] ?? 0;
+        $with = $params['with'] ?? [];
+
+        $orderBy = $this->productModel->orderBy($params['sortBy'] ?? null, $params['sortType'] ?? null);
+
+        $query = $this->productModel->filter($this->productModel::query(), $params)->orderBy($orderBy['sortBy'], $orderBy['sortType']);
+        $query = $this->productModel->includes($query, $with);
+        $query = $query->select('pro_id', 'pro_name','pro_image','pro_ex_price','pro_amount','pro_type');
+
+        $data = DataHelper::getList($query, $this->productTransformer, $perPage, 'ListAllProduct');
+        
+        return ResponseHelper::success($response, $data);
+    }
+
 }

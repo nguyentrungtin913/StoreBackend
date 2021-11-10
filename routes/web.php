@@ -21,49 +21,52 @@ Route::get('/', function () {
 Route::get('/test','App\Http\Controllers\UserController@sentMail');
 
 //auth
-Route::get('/logout','App\Http\Controllers\UserController@logout')->middleware('auth');
 Route::post('/login','App\Http\Controllers\UserController@login');
+Route::get('/logout','App\Http\Controllers\UserController@logout')->middleware('auth');
+
 
 //productType
 Route::get('/product-types','App\Http\Controllers\ProductTypeController@index');
 Route::get('/product-type','App\Http\Controllers\ProductTypeController@find');
-Route::post('/product-type','App\Http\Controllers\ProductTypeController@save');
-Route::put('/product-type','App\Http\Controllers\ProductTypeController@update');
-Route::put('/rating-product-type','App\Http\Controllers\ProductTypeController@rating');
-Route::delete('/product-type','App\Http\Controllers\ProductTypeController@delete');
 Route::get('/product-types-by-vote','App\Http\Controllers\ProductTypeController@getProTypeByVote');
+Route::post('/product-type','App\Http\Controllers\ProductTypeController@save')->middleware('auth');
+Route::put('/product-type','App\Http\Controllers\ProductTypeController@update')->middleware('auth');
+Route::put('/rating-product-type','App\Http\Controllers\ProductTypeController@rating')->middleware('auth');
+Route::delete('/product-type','App\Http\Controllers\ProductTypeController@delete')->middleware('auth');
+
 
 //product
-Route::get('/products','App\Http\Controllers\ProductController@index');
-Route::get('/product','App\Http\Controllers\ProductController@find');
-Route::post('/product','App\Http\Controllers\ProductController@save');
-Route::put('/product','App\Http\Controllers\ProductController@update');
-Route::delete('/product','App\Http\Controllers\ProductController@delete');
+Route::get('/products-customer','App\Http\Controllers\ProductController@customerSelect');
+Route::get('/products','App\Http\Controllers\ProductController@index')->middleware('auth');
 Route::get('/products-by-pro-type','App\Http\Controllers\ProductController@getProductsByProType');
-Route::get('/products-sold-out','App\Http\Controllers\ProductController@listProductSoldOut');
+Route::get('/product','App\Http\Controllers\ProductController@find')->middleware('auth');
+Route::post('/product','App\Http\Controllers\ProductController@save')->middleware('auth');
+Route::put('/product','App\Http\Controllers\ProductController@update')->middleware('auth');
+Route::delete('/product','App\Http\Controllers\ProductController@delete')->middleware('auth');
+Route::get('/products-sold-out','App\Http\Controllers\ProductController@listProductSoldOut')->middleware('auth');
 
 Route::get('/image/{image}','App\Http\Controllers\ProductController@getImage');
 Route::post('/products-by-id','App\Http\Controllers\ProductController@getProductsByArrayId');
 Route::post('/customer-buy','App\Http\Controllers\ProductController@addToCart');
 
 //cart
-Route::get('/carts','App\Http\Controllers\CartController@index');
-Route::put('/cart','App\Http\Controllers\CartController@updateStatus');
-Route::get('/cart','App\Http\Controllers\CartController@findCartById');
-Route::get('/carts-delete','App\Http\Controllers\CartController@removeCart');
+Route::get('/carts','App\Http\Controllers\CartController@index')->middleware('auth');
+Route::put('/cart','App\Http\Controllers\CartController@updateStatus')->middleware('auth');
+Route::get('/cart','App\Http\Controllers\CartController@findCartById')->middleware('auth');
+Route::get('/carts-delete','App\Http\Controllers\CartController@removeCart')->middleware('auth');
 
 //cartDetail
-Route::get('/cart-details','App\Http\Controllers\CartDetailController@findCartDetailByCartId');
+Route::get('/cart-details','App\Http\Controllers\CartDetailController@findCartDetailByCartId')->middleware('auth');
 
 //order
-Route::post('/order','App\Http\Controllers\OrderController@sell');
-Route::post('/order-buy','App\Http\Controllers\OrderController@buy');
+Route::post('/order','App\Http\Controllers\OrderController@sell')->middleware('auth');
+Route::post('/order-buy','App\Http\Controllers\OrderController@buy')->middleware('auth');
 
-Route::get('/orders','App\Http\Controllers\OrderController@index');
-Route::delete('/order','App\Http\Controllers\OrderController@delete');
-Route::post('/export-orders','App\Http\Controllers\OrderController@exportCsv');
-Route::get('/order-detail','App\Http\Controllers\OrderController@orderDetail');
-Route::post('/report','App\Http\Controllers\OrderController@ReportProduct');
+Route::get('/orders','App\Http\Controllers\OrderController@index')->middleware('auth');
+Route::delete('/order','App\Http\Controllers\OrderController@delete')->middleware('auth');
+Route::post('/export-orders','App\Http\Controllers\OrderController@exportCsv')->middleware('auth');
+Route::get('/order-detail','App\Http\Controllers\OrderController@orderDetail')->middleware('auth');
+Route::post('/report','App\Http\Controllers\OrderController@ReportProduct')->middleware('auth');
 
 
 //backup data
